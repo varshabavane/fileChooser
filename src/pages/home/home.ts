@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { NavController } from "ionic-angular";
-import { File } from "@ionic-native/file";
+import { File, FileEntry, IFile } from "@ionic-native/file";
 import { FilePath } from "@ionic-native/file-path";
 
 @Component({
@@ -24,7 +24,6 @@ export class HomePage {
       .then(
         result => {
           for (let item of result) {
-            
             if (
               item.isDirectory == true &&
               item.name != "." &&
@@ -32,7 +31,29 @@ export class HomePage {
             ) {
               this.getFileList(path + "/" + item.name);
             } else {
-              alert( "fileName insde filelist "+ JSON.stringify(item));
+               alert("fileName insde filelist " + JSON.stringify(item.fullPath));
+              // this.file
+              try {
+                let filetype = new File();
+                filetype
+                  .resolveLocalFilesystemUrl(
+                    file.externalRootDirectory + item.fullPath
+                  )
+                  .then((songDetail: FileEntry) => {
+                    alert("songDetail: "+ JSON.stringify(songDetail));
+                    console.log("songdetail: ", JSON.stringify(songDetail));
+                    return new Promise((resolve, reject) => {
+                      songDetail.file(
+                        sDetail => resolve(sDetail),
+                        error => reject(error)
+                      );
+                    }).then((sDetail: IFile) => {
+                      alert("Detail: " + JSON.stringify(sDetail));
+                    });
+                  });
+              } catch {
+                e => alert(JSON.stringify(e));
+              }
               this._fileList.push({
                 name: item.name,
                 path: item.fullPath
@@ -68,11 +89,10 @@ export class HomePage {
             this.getFileList(item.name); //Get all the files inside the folder. recursion will probably be useful here.
           } else if (item.isFile == true) {
             //File found
-            alert("fileName inside fileSearch" + JSON.stringify(item))
+            //alert("fileName inside fileSearch" + JSON.stringify(item));
             this._fileList.push({
               name: item.name,
               path: item.fullPath
-              
             });
           }
         }
@@ -83,65 +103,10 @@ export class HomePage {
   }
 
   FileDir() {
-    alert("filelist:" +  JSON.parse(this._fileList[0]));
+    alert("filelist:" + JSON.parse(this._fileList[0]));
   }
+fileType(songDetail){
 
-  /*
-  import { FilePath } from '@ionic-native/file-path';
-import { File } from '@ionic-native/file';
-constructor(....
-            , public filePath: FilePath
-            , public platform: Platform
-            , public file: File ) {
-    this.platform.ready().then(() => {
-      //the first parameter file.externalRootDirectory is for listing all files on application's root directory
-      //The second parameter is the name of the folder. You can specify the nested folder here. e.g. 'Music/Coldplay'
-      file.listDir(file.externalRootDirectory, '').then((result) => {
-        for(let item of result)
-        {
-          if(item.isDirectory == true && item.name != '.' && item.name!= '..')
-          {
-            this.folderCount++;
-            this.getFileList(item.name);//Get all the files inside the folder. recursion will probably be useful here.
-          }
-          else if (item.isFile == true)
-          { 
-            //File found
-            this._fileList.push({
-              name: item.name,
-              path: item.fullPath
-            });
-          }
-        }
-      },
-      (error) => {
-        console.log(error);
-      });      
-    })
-  }
-
-  public getFileList(path: string): any
-  {
-    let file = new File();
-    this.file.listDir(file.externalRootDirectory, path)
-    .then((result)=>{
-      for(let item of result)
-      {
-        if(item.isDirectory == true && item.name != '.' && item.name != '..')
-        {
-          this.getFileList(path + '/' + item.name);
-        }
-        else
-        {
-          this._fileList.push({
-            name: item.name,
-            path: item.fullPath
-          })
-        }
-      }
-    },(error)=>{
-      console.log(error);
-    })
-  }
-*/
+}
+ 
 }
